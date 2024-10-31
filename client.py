@@ -1,7 +1,8 @@
 import random
-from typing import Dict
+from typing import Dict, List
 import requests
-from config import K, URL_PREFIX
+from config import K, k, URL_PREFIX, DEALER_PREFIX
+from func import generate_random
 
 share_mp: Dict[str, int] = {}
 total_mp: Dict[str, int] = {}
@@ -32,6 +33,11 @@ def open(var_name: str) -> int:
     r = r.json()
     return int(r)
 
+def open_in_mul(var_name_a: str, var_name_b: str, des_name:str, d: int, e: int) -> List[int]:
+    r = requests.get(
+        f"{URL_PREFIX}/open_in_mul/{var_name_a}/{var_name_b}/{des_name}/{d}/{e}")
+    r = r.json()
+    return r
 
 def add_with_constant(var_name: str, des_name: str, const: int) -> None:
     # target: mp[des_name] = mp[var_name]+const
@@ -56,6 +62,16 @@ def add_with_gate(var_name_a: str, var_name_b: str, des_name: str) -> None:
         f"{URL_PREFIX}/add_with_gate/{var_name_a}/{var_name_b}/{des_name}")
     return
 
+def mul_with_gate(var_name_a: str, var_name_b: str, des_name: str) -> None:
+    u,v,w = generate_random()
+    print(u, v, w)
+    d = (share_mp[var_name_a] + u) % k
+    e = (share_mp[var_name_b] + v) % k
+    tmp = open_in_mul(var_name_a, var_name_b, des_name, d, e)
+    d = tmp[0]
+    e = tmp[1]
+    share_mp[des_name] = (w + (e * share_mp[var_name_a]) % k + (d * share_mp[var_name_b]) % k - (d * e) % k) % k
+    return
 
 def test_open():
     total_mp["xyz"] = 123
@@ -96,10 +112,18 @@ def test_add_with_gate():
     print(f"test_mul_with_gate: 124 == {open('cc')}")
     return
 
+def test_mul_with_gate():
+    global total_mp
+    total_mp = {"aa": 13}
+    init_all_shares()
+    mul_with_gate("aa", "bb", "cc")
+    print(f"test_mul_with_gate: {(111 * 13)%k} == {open('cc')}")
+    return
 
 if __name__ == "__main__":
     # test_open()
     # test_init_all_shares()
     # test_add_with_constant()
     # test_mul_with_constant()
-    test_add_with_gate()
+    # test_add_with_gate()
+    test_mul_with_gate()

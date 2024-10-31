@@ -1,6 +1,7 @@
-from config import K
+from config import K, DEALER_PREFIX
 import random
-from typing import Dict
+import requests
+from typing import Dict, List
 
 
 def compute_shares(total_mp: Dict[str, int], k=K):
@@ -13,6 +14,11 @@ def compute_shares(total_mp: Dict[str, int], k=K):
 
     return share_mp_0, share_mp_1
 
+def generate_random() -> List[int]:
+    r = requests.get(
+        f"{DEALER_PREFIX}/generate_random")
+    r = r.json()
+    return r
 
 def test_compute_shares():
     total_mp = {"aa": 3, "bb": 4, "cc": 100}

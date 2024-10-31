@@ -1,7 +1,7 @@
 from fastapi import FastAPI
-from typing import Dict
-from config import K
-from func import compute_shares
+from typing import Dict, List
+from config import K, k
+from func import compute_shares, generate_random
 
 app = FastAPI()
 
@@ -16,6 +16,19 @@ def open(var_name: str, var_share: str) -> str:
     total_mp[var_name] = (myshare + var_share) % (1 << K)
     return str(total_mp[var_name])
 
+@app.get("/open_in_mul/{var_name_a}/{var_name_b}/{des_name}/{d}/{e}")
+def open_in_mul(var_name_a: str, var_name_b: str, des_name: str, d: int, e: int) -> List[int]:
+    tmp = generate_random()
+    u = tmp[0]
+    v = tmp[1]
+    w = tmp[2]
+    print(u,v,w)
+    another_d = (share_mp[var_name_a] + u) % k
+    another_e = (share_mp[var_name_b] + v) % k
+    d += another_d
+    e += another_e
+    share_mp[des_name] = (w + (e * share_mp[var_name_a]) % k + (d * share_mp[var_name_b]) % k) % k
+    return [d, e]
 
 @app.get("/register_share/{var_name}/{var_share}")
 def register(var_name: str, var_share: str) -> str:
