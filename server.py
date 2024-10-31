@@ -6,7 +6,7 @@ from func import compute_shares
 app = FastAPI()
 
 share_mp: Dict[str, int] = {}
-total_mp: Dict[str, int] = {"qq": 99}
+total_mp: Dict[str, int] = {"bb": 111}
 
 
 @app.get("/open/{var_name}/{var_share}")
@@ -23,6 +23,25 @@ def register(var_name: str, var_share: str) -> str:
     print(f"var_name: {var_name}, var_share:{var_share}")
     share_mp[var_name] = var_share
     return ""
+
+
+@app.get("/add_with_constant/{var_name}/{des_name}")
+def add_with_constant(var_name: str, des_name: str) -> None:
+    share_mp[des_name] = share_mp[var_name]
+    return
+
+
+@app.get("/mul_with_constant/{var_name}/{des_name}/{const}")
+def mul_with_constant(var_name: str, des_name: str, const: int) -> None:
+    share_mp[des_name] = (share_mp[var_name]*const) % (1 << K)
+    return
+
+
+@app.get("/add_with_gate/{var_name_a}/{var_name_b}/{des_name}")
+def add_with_gate(var_name_a: str, var_name_b: str, des_name: str) -> None:
+    share_mp[des_name] = (share_mp[var_name_a] +
+                          share_mp[var_name_b]) % (1 << K)
+    return
 
 
 @app.get("/share_shares")
