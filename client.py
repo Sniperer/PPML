@@ -1,7 +1,7 @@
 import random
 from typing import Dict, List
 import requests
-from config import K, k, URL_PREFIX, DEALER_PREFIX
+from config import k, URL_PREFIX
 from func import generate_random
 
 share_mp: Dict[str, int] = {}
@@ -21,61 +21,60 @@ def init_all_shares() -> None:
 
 
 def share(var_name: str) -> None:
-    r = random.randint(1, (1 << K) - 1)
-    share_mp[var_name] = (total_mp[var_name] - r) % (1 << K)
+    r: int = random.randint(1, k - 1)
+    share_mp[var_name] = (total_mp[var_name] - r) % k
     # print(r)
     requests.get(f"{URL_PREFIX}/register_share/{var_name}/{r}")
 
 
 def open(var_name: str) -> int:
-    r = requests.get(
-        f"{URL_PREFIX}/open/{var_name}/{share_mp[var_name]}")
+    r = requests.get(f"{URL_PREFIX}/open/{var_name}/{share_mp[var_name]}")
     r = r.json()
     return int(r)
 
-def open_in_mul(var_name_a: str, var_name_b: str, des_name:str, d: int, e: int) -> List[int]:
-    r = requests.get(
-        f"{URL_PREFIX}/open_in_mul/{var_name_a}/{var_name_b}/{des_name}/{d}/{e}")
-    r = r.json()
+
+def open_in_mul(var_name_a: str, var_name_b: str, des_name: str, d: int, e: int) -> List[int]:
+    r = requests.get(f"{URL_PREFIX}/open_in_mul/{var_name_a}/{var_name_b}/{des_name}/{d}/{e}")
+    r: List[int] = r.json()
     return r
+
 
 def add_with_constant(var_name: str, des_name: str, const: int) -> None:
     # target: mp[des_name] = mp[var_name]+const
-    share_mp[des_name] = (share_mp[var_name] + const) % (1 << K)
-    r = requests.get(
-        f"{URL_PREFIX}/add_with_constant/{var_name}/{des_name}")
+    share_mp[des_name] = (share_mp[var_name] + const) % k
+    r = requests.get(f"{URL_PREFIX}/add_with_constant/{var_name}/{des_name}")
     return
 
 
 def mul_with_constant(var_name: str, des_name: str, const: int) -> None:
     # target: mp[des_name] = mp[var_name]*const
-    share_mp[des_name] = (share_mp[var_name] * const) % (1 << K)
-    requests.get(
-        f"{URL_PREFIX}/mul_with_constant/{var_name}/{des_name}/{const}")
+    share_mp[des_name] = (share_mp[var_name] * const) % k
+    requests.get(f"{URL_PREFIX}/mul_with_constant/{var_name}/{des_name}/{const}")
     return
 
 
 def add_with_gate(var_name_a: str, var_name_b: str, des_name: str) -> None:
-    share_mp[des_name] = (share_mp[var_name_a] +
-                          share_mp[var_name_b]) % (1 << K)
-    requests.get(
-        f"{URL_PREFIX}/add_with_gate/{var_name_a}/{var_name_b}/{des_name}")
+    share_mp[des_name] = (share_mp[var_name_a] + share_mp[var_name_b]) % k
+    requests.get(f"{URL_PREFIX}/add_with_gate/{var_name_a}/{var_name_b}/{des_name}")
     return
 
+
 def mul_with_gate(var_name_a: str, var_name_b: str, des_name: str) -> None:
-    u,v,w = generate_random()
+    u, v, w = generate_random()
     print(u, v, w)
     d = (share_mp[var_name_a] + u) % k
     e = (share_mp[var_name_b] + v) % k
     tmp = open_in_mul(var_name_a, var_name_b, des_name, d, e)
     d = tmp[0]
     e = tmp[1]
-    share_mp[des_name] = (w + (e * share_mp[var_name_a]) % k + (d * share_mp[var_name_b]) % k - (d * e) % k) % k
+    share_mp[des_name] = (w + (e * share_mp[var_name_a]) %
+                          k + (d * share_mp[var_name_b]) % k - (d * e) % k) % k
     return
+
 
 def test_open():
     total_mp["xyz"] = 123
-    share("xyz", 7)
+    share("xyz")
     print(f"test_open: {total_mp['xyz']} == {open('xyz')}")
 
 
@@ -112,6 +111,7 @@ def test_add_with_gate():
     print(f"test_mul_with_gate: 124 == {open('cc')}")
     return
 
+
 def test_mul_with_gate():
     global total_mp
     total_mp = {"aa": 13}
@@ -120,10 +120,15 @@ def test_mul_with_gate():
     print(f"test_mul_with_gate: {(111 * 13)%k} == {open('cc')}")
     return
 
-if __name__ == "__main__":
-    # test_open()
-    # test_init_all_shares()
-    # test_add_with_constant()
-    # test_mul_with_constant()
-    # test_add_with_gate()
+
+def test_all():
+    test_open()
+    test_init_all_shares()
+    test_add_with_constant()
+    test_mul_with_constant()
+    test_add_with_gate()
     test_mul_with_gate()
+
+
+if __name__ == "__main__":
+    test_all()
