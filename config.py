@@ -1,4 +1,4 @@
-k = (1 << 7)  # size of the group Zp
+k = int(2e20)  # size of the group Zp, any big value is okay
 HOST = "0.0.0.0"
 API_PORT = 8000
 DEALER_PORT = 8080
