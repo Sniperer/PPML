@@ -6,7 +6,7 @@ from func import compute_shares, generate_random
 
 app = FastAPI()
 
-share_mp: Dict[str, int] = {}
+share_mp: Dict[str, int] = {"NULL": 0}
 total_mp: Dict[str, int] = {"bb": 111}
 
 

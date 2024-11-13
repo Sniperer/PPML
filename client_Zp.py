@@ -4,7 +4,7 @@ import requests
 from config import k, URL_PREFIX
 from func import generate_random
 
-share_mp: Dict[str, int] = {}
+share_mp: Dict[str, int] = {"NULL":0}
 total_mp: Dict[str, int] = {}
 
 
@@ -61,7 +61,7 @@ def add_with_gate(var_name_a: str, var_name_b: str, des_name: str) -> None:
 
 def mul_with_gate(var_name_a: str, var_name_b: str, des_name: str) -> None:
     u, v, w = generate_random()
-    print(u, v, w)
+    # print(u, v, w)
     d = (share_mp[var_name_a] + u) % k
     e = (share_mp[var_name_b] + v) % k
     tmp = open_in_mul(var_name_a, var_name_b, des_name, d, e)
