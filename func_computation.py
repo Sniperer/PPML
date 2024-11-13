@@ -6,6 +6,7 @@ from client_fixed import eps, fixed2Zp, Zp2fixed, reload_fixed
 from time import time
 import random
 from typing import List
+import joblib
 
 def is_valid(x:float) -> bool:
     if abs(x) <= eps:
@@ -14,12 +15,16 @@ def is_valid(x:float) -> bool:
         return False
 
 def mul_layer(W_name:List[str], X_name:List[str], layer:int) -> int:
+    print("mul_layer start-> ")
     for i in range(len(W_name)):
+        if i%100 == 0:
+            print(f"i = {i}")
         mul_with_gate(W_name[i], X_name[i], f"Z_{layer}_{i}")
         reload_fixed(f"Z_{layer}_{i}")
     return len(W_name)
 
 def add_layer(layer:int, width:int) -> int:
+    print(f"add_layer {layer} start-> ")
     for i in range(0,width,2):
         if i == width-1:
             add_with_gate(f"Z_{layer-1}_{width-1}", "NULL", f"Z_{layer}_{width//2}")
@@ -27,20 +32,16 @@ def add_layer(layer:int, width:int) -> int:
         add_with_gate(f"Z_{layer-1}_{i}", f"Z_{layer-1}_{i+1}", f"Z_{layer}_{i//2}")
     return width//2
 
-        
-def func_computation(W:List[float], X:List[float], offset:float):
-    for w in W:
-        assert is_valid(w), "Input is out of range"
+
+def func_computation_client(W:List[float], X:List[float], offset:float):
     for x in X:
         assert is_valid(x), "Input is out of range"
-    assert is_valid(offset), "Input is out of range"
-    W_name = [f"w{i}" for i in range(len(W))]
+    W_name = [f"w{i}" for i in range(len(X))]    
     X_name = [f"x{i}" for i in range(len(X))]
-    for i in range(len(W)):
-        total_mp[W_name[i]] = fixed2Zp(W[i])
+
     for i in range(len(X)):
         total_mp[X_name[i]] = fixed2Zp(X[i])
-    total_mp["offset"] = fixed2Zp(offset)
+
     init_all_shares()
     # check whether all shares are initialized
     width = mul_layer(W_name, X_name, 0)
@@ -56,16 +57,17 @@ def func_computation(W:List[float], X:List[float], offset:float):
         
 def test():
     start_time = time()
-    size = 1000
-    W = [random.random()*2 for _ in range(size)]
+    size = 65536
+    model = joblib.load("./model.joblib")
+    W:List[int] = model.coef_.tolist()[0]
+    offset:int = model.intercept_.tolist()[0]
     X = [random.random()*2 for _ in range(size)]
-    offset = 10.0
     Z = [W[i]*X[i] for i in range(size)]
     ans = offset
     for i in Z:
         ans += i
     end_time = time()
-    print(f"{func_computation(W,X,offset)} == {ans} using {(end_time - start_time)*1000}")
+    print(f"{func_computation_client(W,X,offset)} == {ans} using {(end_time - start_time)*1000}")
     
 
 if __name__ == "__main__":

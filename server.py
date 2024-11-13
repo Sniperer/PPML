@@ -1,15 +1,27 @@
 from fastapi import FastAPI
 import uvicorn
 from typing import Dict, List
-from config import k, HOST, API_PORT
+from config import k, HOST, API_PORT, MODEL_FILE
 from func import compute_shares, generate_random
-
+from client_fixed import fixed2Zp
+import joblib
 app = FastAPI()
 
 share_mp: Dict[str, int] = {"NULL": 0}
 total_mp: Dict[str, int] = {"bb": 111}
 
+def func_computation_server(W:List[float], offset:float):
+    W_name = [f"w{i}" for i in range(len(W))]
+    for i in range(len(W)):
+        total_mp[W_name[i]] = fixed2Zp(W[i])
+    total_mp["offset"] = fixed2Zp(offset)        
 
+def get_model():
+    model = joblib.load(MODEL_FILE)
+    W:List[int] = model.coef_.tolist()[0]
+    offset:int = model.intercept_.tolist()[0]
+    func_computation_server(W, offset)
+    
 @app.get("/open/{var_name}/{var_share}")
 def open(var_name: str, var_share: str) -> str:
     var_share: int = int(var_share)
@@ -74,4 +86,5 @@ async def root():
 
 
 if __name__ == "__main__":
+    get_model()
     uvicorn.run(app, host=HOST, port=API_PORT)
