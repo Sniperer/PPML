@@ -6,3 +6,5 @@
 Some extra TODO in the future:  
 delete dealer somehow  
 vectorlized to speed up
+
+test my username
