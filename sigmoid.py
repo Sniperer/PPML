@@ -34,6 +34,7 @@ def sigmoid(var_name: str, des_name: str) -> None:
     reload_fixed("s_ans_9")
     add_with_gate("s_ans_8","s_ans_9",des_name)#6
     return
+
 def test_sigmoid(x:float) -> None:
     Taylor = 0.5 + (1/4) * x - (1/48) * x**3 + (1/480) * x**5 - (17/80640) * x**7 + (4369/92897280) * x**9    
     client_Zp.total_mp["xyz"] = fixed2Zp(x)
