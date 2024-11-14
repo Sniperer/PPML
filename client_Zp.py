@@ -4,7 +4,7 @@ import requests
 from config import k, URL_PREFIX
 from func import generate_random
 
-share_mp: Dict[str, int] = {"NULL":0}
+share_mp: Dict[str, int] = {"NULL": 0}
 total_mp: Dict[str, int] = {}
 
 

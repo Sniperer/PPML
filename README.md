@@ -8,4 +8,4 @@ Some extra TODO in the future:
 2. vectorlized to speed up
 3. opento including sigmoid cutoff
 4. report
-5. NN
+5. try to implyment NN, CNN
