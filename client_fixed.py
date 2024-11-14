@@ -1,6 +1,5 @@
 # here we can compute over fixed point. Includes neg number.
-import requests
-from config import k, URL_PREFIX
+from config import k
 from client_Zp import init_all_shares, add_with_gate, total_mp, open, mul_with_gate, share
 from client_int import int2Zp, Zp2int
 import client_Zp
@@ -69,20 +68,20 @@ def test_mul_fixed(a: float = 3.14, b: float = -2.718) -> None:
 def test_compute_1(w0: float, w1: float, w2: float, x1: float, x2: float) -> None:
     start_time = time()
     # compute w0*w1*w2+x1+x2
-    total_mp["w0"] = fixed2Zp(w0)
-    total_mp["w1"] = fixed2Zp(w1)
-    total_mp["w2"] = fixed2Zp(w2)
-    total_mp["x1"] = fixed2Zp(x1)
-    total_mp["x2"] = fixed2Zp(x2)
+    total_mp["tw0"] = fixed2Zp(w0)
+    total_mp["tw1"] = fixed2Zp(w1)
+    total_mp["tw2"] = fixed2Zp(w2)
+    total_mp["tx1"] = fixed2Zp(x1)
+    total_mp["tx2"] = fixed2Zp(x2)
     init_all_shares()
-    mul_with_gate("w0", "w1", "ans_1")  # ans1 = w0 * w1
-    reload_fixed("ans_1")
-    mul_with_gate("ans_1", "w2", "ans_2")  # ans2 = ans1 * w2
-    reload_fixed("ans_2")
-    add_with_gate("ans_2", "x1", "ans_3")  # ans3 = ans2 + x1
-    add_with_gate("ans_3", "x2", "ans_4")  # ans4 = ans3 + x2
+    mul_with_gate("tw0", "tw1", "tans_1")  # ans1 = w0 * w1
+    reload_fixed("tans_1")
+    mul_with_gate("tans_1", "tw2", "tans_2")  # ans2 = ans1 * w2
+    reload_fixed("tans_2")
+    add_with_gate("tans_2", "tx1", "tans_3")  # ans3 = ans2 + x1
+    add_with_gate("tans_3", "tx2", "tans_4")  # ans4 = ans3 + x2
 
-    ans: float = Zp2fixed(open('ans_4'), scale=1)
+    ans: float = Zp2fixed(open('tans_4'), scale=1)
     end_time = time()
     print(f"test_add_int in {(end_time-start_time)*1000} ms: {ans} == {w0 * w1 * w2 + x1 + x2}")
 
