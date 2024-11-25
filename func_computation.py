@@ -3,7 +3,6 @@ from client_fixed import eps, fixed2Zp, Zp2fixed, reload_fixed
 from typing import List
 import joblib
 from sigmoid import sigmoid, sigmoid_by_taylor
-from sklearn.linear_model import LogisticRegression
 from config import test_x
 
 

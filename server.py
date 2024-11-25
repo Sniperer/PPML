@@ -39,7 +39,7 @@ def open_in_mul(var_name_a: str, var_name_b: str, des_name: str, d: int, e: int)
     u = tmp[0]
     v = tmp[1]
     w = tmp[2]
-    print(u, v, w)
+    # print(u, v, w)
     another_d = (share_mp[var_name_a] + u) % k
     another_e = (share_mp[var_name_b] + v) % k
     d += another_d
@@ -51,7 +51,7 @@ def open_in_mul(var_name_a: str, var_name_b: str, des_name: str, d: int, e: int)
 @app.get("/register_share/{var_name}/{var_share}")
 def register(var_name: str, var_share: str) -> None:
     var_share: int = int(var_share)
-    print(f"var_name: {var_name}, var_share:{var_share}")
+    # print(f"var_name: {var_name}, var_share:{var_share}")
     share_mp[var_name] = var_share
     return ""
 
@@ -79,7 +79,7 @@ def share_shares() -> Dict[str, int]:
     global share_mp
     part_share_mp, another_share_mp = compute_shares(total_mp)
     share_mp = {**share_mp, **part_share_mp}
-    print(share_mp)
+    # print(share_mp)
     return another_share_mp
 
 
@@ -91,3 +91,4 @@ async def root():
 if __name__ == "__main__":
     get_model()
     uvicorn.run(app, host=HOST, port=API_PORT)
+    # uvicorn server:app --host 127.0.0.1 --port 8000
