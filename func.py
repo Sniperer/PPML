@@ -3,6 +3,9 @@ import random
 import requests
 from typing import Dict, List
 
+# use only this one session to avoid use too many ports and then shut down
+session = requests.Session()
+
 
 def compute_shares(total_mp: Dict[str, int], k=k):
     share_mp_0 = {}
@@ -16,8 +19,7 @@ def compute_shares(total_mp: Dict[str, int], k=k):
 
 
 def generate_random() -> List[int]:
-    r = requests.get(
-        f"{DEALER_PREFIX}/generate_random")
+    r = requests.get(f"{DEALER_PREFIX}/generate_random")
     r = r.json()
     return r
 

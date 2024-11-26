@@ -1,5 +1,6 @@
 fastapi==0.115.5
 joblib==1.4.2
+keras==3.6.0
 Requests==2.32.3
 scikit_learn==1.5.2
-uvicorn==0.32.0
+uvicorn==0.32.1

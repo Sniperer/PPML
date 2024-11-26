@@ -2,7 +2,7 @@ import random
 from typing import Dict, List
 import requests
 from config import k, URL_PREFIX
-from func import generate_random
+from func import generate_random, session
 
 share_mp: Dict[str, int] = {"NULL": 0}
 total_mp: Dict[str, int] = {}
@@ -14,7 +14,7 @@ def init_all_shares() -> None:
     global share_mp, total_mp
     for it in total_mp:
         share(it)
-    r = requests.get(f"{URL_PREFIX}/share_shares")
+    r = session.get(f"{URL_PREFIX}/share_shares")
     part_share_mp = r.json()
     share_mp = {**share_mp, **part_share_mp}
     return
@@ -24,17 +24,19 @@ def share(var_name: str) -> None:
     r: int = random.randint(1, k - 1)
     share_mp[var_name] = (total_mp[var_name] - r) % k
     # print(r)
-    requests.get(f"{URL_PREFIX}/register_share/{var_name}/{r}")
+
+    session.get(f"{URL_PREFIX}/register_share/{var_name}/{r}")
+    return
 
 
 def open(var_name: str) -> int:
-    r = requests.get(f"{URL_PREFIX}/open/{var_name}/{share_mp[var_name]}")
+    r = session.get(f"{URL_PREFIX}/open/{var_name}/{share_mp[var_name]}")
     r = r.json()
     return int(r)
 
 
 def open_in_mul(var_name_a: str, var_name_b: str, des_name: str, d: int, e: int) -> List[int]:
-    r = requests.get(f"{URL_PREFIX}/open_in_mul/{var_name_a}/{var_name_b}/{des_name}/{d}/{e}")
+    r = session.get(f"{URL_PREFIX}/open_in_mul/{var_name_a}/{var_name_b}/{des_name}/{d}/{e}")
     r: List[int] = r.json()
     return r
 
@@ -42,20 +44,20 @@ def open_in_mul(var_name_a: str, var_name_b: str, des_name: str, d: int, e: int)
 def add_with_constant(var_name: str, des_name: str, const: int) -> None:
     # target: mp[des_name] = mp[var_name]+const
     share_mp[des_name] = (share_mp[var_name] + const) % k
-    r = requests.get(f"{URL_PREFIX}/add_with_constant/{var_name}/{des_name}")
+    r = session.get(f"{URL_PREFIX}/add_with_constant/{var_name}/{des_name}")
     return
 
 
 def mul_with_constant(var_name: str, des_name: str, const: int) -> None:
     # target: mp[des_name] = mp[var_name]*const
     share_mp[des_name] = (share_mp[var_name] * const) % k
-    requests.get(f"{URL_PREFIX}/mul_with_constant/{var_name}/{des_name}/{const}")
+    session.get(f"{URL_PREFIX}/mul_with_constant/{var_name}/{des_name}/{const}")
     return
 
 
 def add_with_gate(var_name_a: str, var_name_b: str, des_name: str) -> None:
     share_mp[des_name] = (share_mp[var_name_a] + share_mp[var_name_b]) % k
-    requests.get(f"{URL_PREFIX}/add_with_gate/{var_name_a}/{var_name_b}/{des_name}")
+    session.get(f"{URL_PREFIX}/add_with_gate/{var_name_a}/{var_name_b}/{des_name}")
     return
 
 
